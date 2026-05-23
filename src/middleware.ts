@@ -10,18 +10,31 @@ export function middleware(request: NextRequest) {
 
   if (authHeader) {
     try {
-      const authValue = authHeader.split(' ')[1] || '';
+      const [scheme, authValue] = authHeader.split(' ');
       
-      console.log('[Auth Middleware] Verifying authValue: %s', authValue);
-            // Use atob() for Base64 decoding to ensure compatibility with the Edge Runtime
+      if (scheme !== 'Basic' || !authValue) {
+        throw new Error('Invalid Authorization scheme');
+      }
+
+      // Use atob() for Base64 decoding to ensure compatibility with the Edge Runtime
       const decoded = atob(authValue);
-      const [user, pass] = decoded.split(':');
+      const colonIndex = decoded.indexOf(':');
+      
+      if (colonIndex === -1) {
+        throw new Error('Invalid format: missing colon');
+      }
+
+      const user = decoded.substring(0, colonIndex);
+      const pass = decoded.substring(colonIndex + 1);
+
+      // Use trim() to ensure accidental whitespace in .env values doesn't break comparison
+      const expectedUser = (process.env.USERNAME || '').trim();
+      const expectedPass = (process.env.PASSWORD || '').trim();
 
       console.log('[Auth Middleware] Verifying credentials - User: %s, Pass: %s', user, pass);
+      console.log('[Auth Middleware] Comparison credentials - User: %s, Pass: %s', expectedUser, expectedPass);
 
-      console.log('[Auth Middleware] Comparison credentials - User: %s, Pass: %s',  process.env.USERNAME, process.env.PASSWORD);
-
-      if (user === process.env.USERNAME && pass === process.env.PASSWORD) {
+      if (expectedUser && expectedPass && user === expectedUser && pass === expectedPass) {
         console.log('[Auth Middleware] Successful authentication for user: %s', user);
         return NextResponse.next();
       }
