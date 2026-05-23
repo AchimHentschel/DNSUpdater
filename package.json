@@ -1,0 +1,27 @@
+{
+  "name": "dns-updater-ts",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "next": "14.1.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.1",
+    "msw": "^2.1.5",
+    "@testing-library/react": "^14.1.2",
+    "undici": "^6.6.0"
+  }
+}
