@@ -24,35 +24,15 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // 1. Authentication (Basic Auth) matching README requirements
-  const authHeader = request.headers.get('authorization');
-  const expectedUser = process.env.USERNAME;
-  const expectedPass = process.env.PASSWORD;
+  // Authentication is handled by middleware.ts
+  // We only need to ensure the API_KEY is configured for the DigitalOcean request.
   const apiKey = process.env.API_KEY;
 
-  if (!expectedUser || !expectedPass || !apiKey) {
+  if (!apiKey) {
     return NextResponse.json(
-      { error: 'Server configuration error: USERNAME, PASSWORD, or API_KEY is not set.' },
+      { error: 'Server configuration error: API_KEY is not set.' },
       { status: 500 }
     );
-  }
-
-  if (!authHeader || !authHeader.startsWith('Basic ')) {
-    return NextResponse.json({ error: 'User has not been authenticated.' }, { status: 401 });
-  }
-
-  const base64Credentials = authHeader.split(' ')[1];
-  if (!base64Credentials) {
-    return NextResponse.json({ error: 'Invalid Authorization header format.' }, { status: 401 });
-  }
-
-  const credentials = Buffer.from(base64Credentials, 'base64').toString().split(':');
-  if (credentials.length !== 2) {
-    return NextResponse.json({ error: 'Invalid credentials format.' }, { status: 401 });
-  }
-
-  if (credentials[0] !== expectedUser || credentials[1] !== expectedPass) {
-    return NextResponse.json({ error: 'Invalid credentials.' }, { status: 401 });
   }
 
   try {
