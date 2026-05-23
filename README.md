@@ -1,17 +1,14 @@
 # DNSUpdater
 
 <p align="center">
-    <a href="https://hub.docker.com/r/ffittschen/dns-updater" target="_blank" rel="noopener noreferrer">
-        <img alt="Docker Cloud Build Status" src="https://img.shields.io/docker/cloud/build/ffittschen/dns-updater.svg">
-    </a>
     <a href="LICENSE">
         <img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" alt="MIT License">
     </a>
-    <a href="https://swift.org" target="_blank" rel="noopener noreferrer">
-        <img src="https://img.shields.io/badge/swift-4.2-brightgreen.svg" alt="Swift 4.2">
+    <a href="https://www.typescriptlang.org/" target="_blank" rel="noopener noreferrer">
+        <img src="https://img.shields.io/badge/typescript-5.3-blue.svg" alt="TypeScript 5.3">
     </a>
-    <a href="https://github.com/vapor/vapor" target="_blank" rel="noopener noreferrer">
-        <img src="https://img.shields.io/badge/Vapor-3-%2300b0ff.svg" alt="Vapor 3">
+    <a href="https://nextjs.org" target="_blank" rel="noopener noreferrer">
+        <img src="https://img.shields.io/badge/Next.js-14-black.svg" alt="Next.js 14">
     </a>
 </p>
 
@@ -20,19 +17,18 @@ This package allows you to set up a service that updates DNS records using the D
 
 ## Usage
 
-You can either use the [ffittschen/dns-updater](https://hub.docker.com/r/ffittschen/dns-updater) image on DockerHub, or build the image on your own using the instructions below.
-
-### DockerHub
+### Build and Run with Docker
 
 ```bash
-docker  run -it -d \
-    -p 8080:80 \
+docker build -t dns-updater-ts .
+
+docker run -it -d \
+    -p 3000:3000 \
     -e USERNAME=john_doe \
     -e PASSWORD=change_this_to_some_secure_password \
     -e API_KEY=your_digitalocean_api_key \
-    -e ENVIRONMENT=production \
     --name dns-updater \
-    ffittschen/dns-updater:latest
+    dns-updater-ts
 ```
 
 Alternatively, you can also create a `.env` file:
