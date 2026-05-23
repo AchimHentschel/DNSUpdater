@@ -23,11 +23,13 @@ export async function updateDomainRecord(
     throw new Error(`Failed to list records: ${listRes.statusText}`);
   }
 
+  // Determine record type: 'AAAA' for IPv6, 'A' for IPv4
+  const recordType = ip.includes(':') ? 'AAAA' : 'A';
   const { domain_records }: { domain_records: DomainRecord[] } = await listRes.json();
-  const record = domain_records.find((r) => r.name === recordName && r.type === 'A');
+  const record = domain_records.find((r) => r.name === recordName && r.type === recordType);
 
   if (!record) {
-    throw new Error(`Could not find A record with name '${recordName}'`);
+    throw new Error(`Could not find ${recordType} record with name '${recordName}'`);
   }
 
   // 2. Update the record

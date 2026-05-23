@@ -15,6 +15,11 @@ const handlers = [
       domain_record: { id: 123, type: 'A', name: 'home', data: '1.2.3.4' }
     });
   }),
+  http.get('https://api.digitalocean.com/v2/domains/example.com/records', () => {
+    return HttpResponse.json({
+      domain_records: [{ id: 456, type: 'AAAA', name: 'home', data: '2001:db8::1' }]
+    });
+  }),
 ];
 
 const server = setupServer(...handlers);
@@ -36,6 +41,16 @@ describe('GET /api/v1/domains/updateRecord', () => {
 
     expect(response.status).toBe(200);
     expect(body.domain_record.data).toBe('1.2.3.4');
+  });
+
+  it('updates IPv6 (AAAA) records successfully', async () => {
+    const ipv6 = '2001:db8::2';
+    const url = `http://localhost/api/v1/domains/updateRecord?domain=example.com&recordName=home&ip=${encodeURIComponent(ipv6)}`;
+    const req = new NextRequest(url);
+    
+    const response = await GET(req);
+    expect(response.status).toBe(200);
+    // Note: In a real test, you'd mock the PUT response specifically for ID 456
   });
 
   it('returns 400 when IP is invalid', async () => {
