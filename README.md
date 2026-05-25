@@ -82,3 +82,6 @@ echo -n john_doe:some_secure_password | base64
 
 ## Prerequisites
 Since this is a DNS _Updater_, you need to make sure that a record with the name that you pass as a query parameter already exists in your DigitalOcean account.
+
+# Future improvements
+Implement an improvement to expose IPv6 devices in the home network by providing a list of MAC addresses and supporting updates of the prefix via URLs like https://[update-url]?hostname=<domain>&myip=<ipaddr>,<ip6addr>&ipv6prefix=<ip6lanprefix>.
