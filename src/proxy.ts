@@ -1,12 +1,18 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
   const path = request.nextUrl.pathname;
 
   // Log immediately to verify the middleware is executing
-  console.log('[Auth Middleware] Incoming request: %s', path);
+  console.log('[Auth Proxy] Incoming request: %s', path);
+
+  if (process.env.DEBUG === 'true') {
+    const debugHeaders: Record<string, string> = {};
+    request.headers.forEach((value, key) => { debugHeaders[key] = value; });
+    console.log('[Auth Proxy] Debug - Request Headers for %s: %O', path, debugHeaders);
+  }
 
   if (authHeader) {
     try {
@@ -34,19 +40,19 @@ export function middleware(request: NextRequest) {
       const passExists = pass?.length > 0 ? '***' : '(empty)';
       const expectedPassExists = expectedPass?.length > 0 ? '***' : '(empty)';
 
-      console.log('[Auth Middleware] Verifying credentials - User: %s, Pass: %s', user, passExists);
-      console.log('[Auth Middleware] Comparison credentials - User: %s, Pass: %s', expectedUser, expectedPassExists);
+      console.log('[Auth Proxy] Verifying credentials - User: %s, Pass: %s', user, passExists);
+      console.log('[Auth Proxy] Comparison credentials - User: %s, Pass: %s', expectedUser, expectedPassExists);
 
       if (expectedUser && expectedPass && user === expectedUser && pass === expectedPass) {
-        console.log('[Auth Middleware] Successful authentication for user: %s', user);
+        console.log('[Auth Proxy] Successful authentication for user: %s', user);
         return NextResponse.next();
       }
-      console.warn('[Auth Middleware] Authentication failed for user: %s', user);
+      console.warn('[Auth Proxy] Authentication failed for user: %s', user);
     } catch (error) {
-      console.error('[Auth Middleware] Error decoding Authorization header: %s', error instanceof Error ? error.message : 'Unknown error');
+      console.error('[Auth Proxy] Error decoding Authorization header: %s', error instanceof Error ? error.message : 'Unknown error');
     }
   } else {
-    console.warn('[Auth Middleware] Access denied: No Authorization header for %s', path);
+    console.warn('[Auth Proxy] Access denied: No Authorization header for %s', path);
   }
 
   return new NextResponse('Authentication required', {
