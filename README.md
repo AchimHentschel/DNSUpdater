@@ -15,56 +15,48 @@
 
 This package allows you to set up a service that updates DNS records using the DigitalOcean API. Its main purpose is being a target for other clients that only allow GET requests to send updates to DDNS services, e.g., routers like  Fritz!Box.
 
+It is based on the Swift version created by Florian Fittschen (https://github.com/ffittschen/DNSUpdater). Thanks a lot for the really cool implementation that served me well for years until it broke because of unsupported encryption versions everyone stopped supporting.
+
+Swift code is still unfamiliar to me, so I quickly had do give up when trying to 
+vibecode the upgrade to a recent Swift stack. I then decided to just fall back to 
+TypeScript. And this is where we are now.
+
 ## Usage
 
-### Build and Run with Docker
+### Build and Run with Docker Compose
 
-```bash
-docker build -t dns-updater-ts .
-
-docker run -it -d \
-    -p 3000:3000 \
-    -e USERNAME=john_doe \
-    -e PASSWORD=change_this_to_some_secure_password \
-    -e API_KEY=your_digitalocean_api_key \
-    --name dns-updater \
-    dns-updater-ts
-```
-
-Alternatively, you can also create a `.env` file:
+First, you need to create a `.env` file (copy cand change .env.sample):
 ```
 USERNAME=john_doe
 PASSWORD=change_this_to_some_secure_password
 API_KEY=your_digitalocean_api_key
-ENVIRONMENT=production
 ```
 
-And then change the command to the following to use the `.env` file:
-```bash
-docker  run -it -d \
-    -p 8080:80 \
-    --env-file .env \
-    --name dns-updater \
-    ffittschen/dns-updater:latest
-```
-
-### Build from Source / GitHub
+`USERNAME` and `PASSWORD` are used inside te TypeScript code to validate the credentials provided by your router. `API_KEY` is the DigitalOcean API key. The suggested configuration on DigitalOcean is to only provide the following permissions on an API access token:
+- domain / read
+- domain / update
 
 ```bash
-git clone https://github.com/ffittschen/DNSUpdater
-git checkout master
-cd DNSUpdater
-cp .env.sample .env
-$EDITOR .env
-docker build -t ffittschen/dns-updater:latest .
-docker run -it -d -p 8080:80 --env-file .env --name=dns-updater ffittschen/dns-updater:latest
+docker compose build
+
+docker compose up -d
 ```
+
+You can test your setup by running this `curl` command using `bash`.
+
+```sh
+
+# Use a subshell to source the .env file safely
+(export $(grep -v '^#' .env | xargs) && curl -i -u "$USERNAME:$PASSWORD" "http://localhost:3000/api/v1/domains/updateRecord?domain=example.com&subdomain=test&ip=1.2.3.4")
+```
+
+Where the DNS entry on DigitalOcean looks like `subdomain.example.com`.
 
 ## Ports
 
 |  Port  | Description               |
 |:------:|---------------------------|
-| 80/TCP | API to update DNS records |
+| 3000/TCP | API to update DNS records - you can change to a port of your liking in the docker-compose.yml file |
 
 ## API
 
@@ -82,7 +74,7 @@ In addition to the query parameters, you need to authenticate the request using 
 |---------------|--------------|
 | Authorization | Basic am9obl9kb2U6c29tZV9zZWN1cmVfcGFzc3dvcmQ= |
 
-The header value is the username and password concatenated with a colon as separator and then encoded to base64. You can create the string by calling this command in your terminal:
+The header value is the username and password concatenated with a colon as separator and then encoded to base64. You can create the string by calling this command in your terminal (or, like in the above example, rely on `curl` managing the credential encoding for you):
 
 ```bash
 echo -n john_doe:some_secure_password | base64
