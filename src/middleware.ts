@@ -31,8 +31,11 @@ export function middleware(request: NextRequest) {
       const expectedUser = (process.env.USERNAME || '').trim();
       const expectedPass = (process.env.PASSWORD || '').trim();
 
-      console.log('[Auth Middleware] Verifying credentials - User: %s, Pass: %s', user, pass);
-      console.log('[Auth Middleware] Comparison credentials - User: %s, Pass: %s', expectedUser, expectedPass);
+      const passExists = pass?.length > 0 ? '***' : '(empty)';
+      const expectedPassExists = expectedPass?.length > 0 ? '***' : '(empty)';
+
+      console.log('[Auth Middleware] Verifying credentials - User: %s, Pass: %s', user, passExists);
+      console.log('[Auth Middleware] Comparison credentials - User: %s, Pass: %s', expectedUser, expectedPassExists);
 
       if (expectedUser && expectedPass && user === expectedUser && pass === expectedPass) {
         console.log('[Auth Middleware] Successful authentication for user: %s', user);
